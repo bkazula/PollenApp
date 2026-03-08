@@ -13,5 +13,13 @@
   "apiError": "Error loading data from Google Pollen API.",
   "noData": "No data for this location.",
   "english": "English",
-  "polish": "Polski"
+  "polish": "Polski",
+  "selectedLocationLabel": "Selected location",
+  "locationServicesDisabled": "Location services are disabled on this device.",
+  "locationPermissionDenied": "Location permission denied. Please enable it in system settings.",
+  "citySearchFailed": "Unable to find the city. Please try another query.",
+  "intensityVeryHigh": "Very high",
+  "intensityHigh": "High",
+  "intensityMedium": "Medium",
+  "intensityLow": "Low"
 }

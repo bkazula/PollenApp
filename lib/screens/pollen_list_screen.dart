@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:pollenapp/l10n/app_localizations.dart';
+
 import '../models/app_location.dart';
 import '../models/pollen_entry.dart';
 import '../services/pollen_api_service.dart';
@@ -48,6 +48,23 @@ class _PollenListScreenState extends State<PollenListScreen> {
       return Colors.green.shade300;
     }
     return Colors.blueGrey.shade300;
+  }
+
+  String _localizedIntensity(AppLocalizations strings, String intensity) {
+    final String normalized = intensity.toLowerCase();
+    if (normalized.contains('very high')) {
+      return strings.intensityVeryHigh;
+    }
+    if (normalized.contains('high')) {
+      return strings.intensityHigh;
+    }
+    if (normalized.contains('medium') || normalized.contains('moderate')) {
+      return strings.intensityMedium;
+    }
+    if (normalized.contains('low')) {
+      return strings.intensityLow;
+    }
+    return intensity;
   }
 
   @override
@@ -145,7 +162,9 @@ class _PollenListScreenState extends State<PollenListScreen> {
                       title: Text(entry.name),
                       trailing: Chip(
                         backgroundColor: _colorByIntensity(entry.intensity),
-                        label: Text(entry.intensity),
+                        label: Text(
+                          _localizedIntensity(strings, entry.intensity),
+                        ),
                       ),
                     );
                   },

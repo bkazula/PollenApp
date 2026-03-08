@@ -49,4 +49,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get polish => 'Polski';
+
+  @override
+  String get selectedLocationLabel => 'Selected location';
+
+  @override
+  String get locationServicesDisabled =>
+      'Location services are disabled on this device.';
+
+  @override
+  String get locationPermissionDenied =>
+      'Location permission denied. Please enable it in system settings.';
+
+  @override
+  String get citySearchFailed =>
+      'Unable to find the city. Please try another query.';
+
+  @override
+  String get intensityVeryHigh => 'Very high';
+
+  @override
+  String get intensityHigh => 'High';
+
+  @override
+  String get intensityMedium => 'Medium';
+
+  @override
+  String get intensityLow => 'Low';
 }

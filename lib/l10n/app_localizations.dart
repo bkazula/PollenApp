@@ -181,6 +181,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Polski'**
   String get polish;
+
+  /// No description provided for @selectedLocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected location'**
+  String get selectedLocationLabel;
+
+  /// No description provided for @locationServicesDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are disabled on this device.'**
+  String get locationServicesDisabled;
+
+  /// No description provided for @locationPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission denied. Please enable it in system settings.'**
+  String get locationPermissionDenied;
+
+  /// No description provided for @citySearchFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to find the city. Please try another query.'**
+  String get citySearchFailed;
+
+  /// No description provided for @intensityVeryHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Very high'**
+  String get intensityVeryHigh;
+
+  /// No description provided for @intensityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get intensityHigh;
+
+  /// No description provided for @intensityMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get intensityMedium;
+
+  /// No description provided for @intensityLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get intensityLow;
 }
 
 class _AppLocalizationsDelegate

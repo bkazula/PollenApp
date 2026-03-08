@@ -3,8 +3,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-
 import 'package:pollenapp/l10n/app_localizations.dart';
+
 import '../models/app_location.dart';
 import '../services/location_storage_service.dart';
 import 'pollen_list_screen.dart';
@@ -20,6 +20,8 @@ class LocationPickerScreen extends StatefulWidget {
 
 class _LocationPickerScreenState extends State<LocationPickerScreen> {
   final TextEditingController _cityController = TextEditingController();
+  final MapController _mapController = MapController();
+
   LatLng _selected = const LatLng(52.2297, 21.0122);
   String _locationLabel = 'Warsaw';
   bool _loading = false;
@@ -30,9 +32,25 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     _initFromDeviceLocation();
   }
 
+  @override
+  void dispose() {
+    _cityController.dispose();
+    super.dispose();
+  }
+
+  void _moveMap(LatLng point) {
+    _mapController.move(point, _mapController.camera.zoom);
+  }
+
   Future<void> _initFromDeviceLocation() async {
+    final AppLocalizations strings = AppLocalizations.of(context)!;
     final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.locationServicesDisabled)),
+        );
+      }
       return;
     }
 
@@ -43,6 +61,11 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.locationPermissionDenied)),
+        );
+      }
       return;
     }
 
@@ -56,9 +79,11 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       _locationLabel =
           '${pos.latitude.toStringAsFixed(4)}, ${pos.longitude.toStringAsFixed(4)}';
     });
+    _moveMap(_selected);
   }
 
   Future<void> _searchCity() async {
+    final AppLocalizations strings = AppLocalizations.of(context)!;
     if (_cityController.text.trim().isEmpty) {
       return;
     }
@@ -72,6 +97,11 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         _cityController.text.trim(),
       );
       if (results.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(strings.citySearchFailed)));
+        }
         return;
       }
 
@@ -84,6 +114,13 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         _selected = LatLng(result.latitude, result.longitude);
         _locationLabel = _cityController.text.trim();
       });
+      _moveMap(_selected);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(strings.citySearchFailed)));
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -174,6 +211,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: FlutterMap(
+                  mapController: _mapController,
                   options: MapOptions(
                     initialCenter: _selected,
                     initialZoom: 7,
@@ -210,7 +248,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            Text('${strings.selectLocation}: $_locationLabel'),
+            Text('${strings.selectedLocationLabel}: $_locationLabel'),
             const SizedBox(height: 12),
             FilledButton.icon(
               onPressed: _saveAndContinue,

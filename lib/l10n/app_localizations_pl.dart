@@ -49,4 +49,31 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get polish => 'Polski';
+
+  @override
+  String get selectedLocationLabel => 'Wybrana lokalizacja';
+
+  @override
+  String get locationServicesDisabled =>
+      'Usługi lokalizacji są wyłączone na tym urządzeniu.';
+
+  @override
+  String get locationPermissionDenied =>
+      'Brak zgody na lokalizację. Włącz ją w ustawieniach systemu.';
+
+  @override
+  String get citySearchFailed =>
+      'Nie udało się znaleźć miasta. Spróbuj innej frazy.';
+
+  @override
+  String get intensityVeryHigh => 'Bardzo wysokie';
+
+  @override
+  String get intensityHigh => 'Wysokie';
+
+  @override
+  String get intensityMedium => 'Średnie';
+
+  @override
+  String get intensityLow => 'Niskie';
 }
