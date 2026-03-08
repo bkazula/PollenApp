@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../main.dart';
+import 'package:pollenapp/l10n/app_localizations.dart';
 import '../models/app_location.dart';
 import '../models/pollen_entry.dart';
 import '../services/pollen_api_service.dart';
@@ -52,7 +52,7 @@ class _PollenListScreenState extends State<PollenListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AppStrings strings = AppStrings.of(context);
+    final AppLocalizations strings = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(

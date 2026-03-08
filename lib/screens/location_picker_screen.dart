@@ -4,7 +4,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../main.dart';
+import 'package:pollenapp/l10n/app_localizations.dart';
 import '../models/app_location.dart';
 import '../services/location_storage_service.dart';
 import 'pollen_list_screen.dart';
@@ -122,7 +122,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AppStrings strings = AppStrings.of(context);
+    final AppLocalizations strings = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(

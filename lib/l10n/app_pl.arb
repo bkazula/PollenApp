@@ -1,0 +1,17 @@
+{
+  "@@locale": "pl",
+  "appTitle": "Pylenie dzisiaj",
+  "selectLocation": "Wybierz lokalizację",
+  "chooseOnMap": "Wybierz na mapie lub wpisz miasto",
+  "saveLocation": "Zapisz lokalizację",
+  "changeLocation": "Zmień lokalizację",
+  "useCurrentLocation": "Użyj mojej lokalizacji",
+  "cityHint": "Np. Kraków",
+  "citySearch": "Szukaj miasta",
+  "pollenFor": "Pylenie dla",
+  "refresh": "Odśwież",
+  "apiError": "Błąd pobierania danych z Google Pollen API.",
+  "noData": "Brak danych dla tej lokalizacji.",
+  "english": "English",
+  "polish": "Polski"
+}

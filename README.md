@@ -14,6 +14,7 @@ A Flutter application that displays current pollen allergens and intensity for a
 - Pollen list screen shows allergen name and intensity from Google Pollen API.
 - On-demand location change from pollen list screen.
 - App language switcher (English / Polish).
+- Localization is implemented with `flutter_localizations` + `intl` (ARB-based translations).
 
 ## Google Pollen API key
 

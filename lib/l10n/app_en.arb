@@ -1,0 +1,17 @@
+{
+  "@@locale": "en",
+  "appTitle": "Pollen today",
+  "selectLocation": "Select location",
+  "chooseOnMap": "Choose on map or type a city",
+  "saveLocation": "Save location",
+  "changeLocation": "Change location",
+  "useCurrentLocation": "Use my current location",
+  "cityHint": "e.g. London",
+  "citySearch": "Search city",
+  "pollenFor": "Pollen for",
+  "refresh": "Refresh",
+  "apiError": "Error loading data from Google Pollen API.",
+  "noData": "No data for this location.",
+  "english": "English",
+  "polish": "Polski"
+}
