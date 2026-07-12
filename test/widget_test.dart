@@ -1,30 +1,96 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:pollenapp/main.dart';
+import 'package:pollenapp/models/app_location.dart';
+import 'package:pollenapp/models/pollen_entry.dart';
+
+const AppLocation _testLocation = AppLocation(
+  latitude: 52.2297,
+  longitude: 21.0122,
+  label: 'Warsaw',
+);
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('App displays location picker on first launch', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      PollenApp(savedLocationLoader: () async => null, autoLocateOnOpen: false),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpAndSettle();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(find.text('Select location'), findsOneWidget);
+    expect(find.text('Choose on map or type a city'), findsOneWidget);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('App displays pollen data for a saved location', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      PollenApp(
+        savedLocationLoader: () async => _testLocation,
+        pollenDataLoader: ({required latitude, required longitude}) async =>
+            <PollenEntry>[const PollenEntry(name: 'Birch', intensity: 'High')],
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pollen for: Warsaw'), findsOneWidget);
+    expect(find.text('Birch'), findsOneWidget);
+    expect(find.text('High'), findsOneWidget);
+  });
+
+  testWidgets(
+    'App keeps saved-location bootstrap future across locale changes',
+    (WidgetTester tester) async {
+      int savedLocationLoadCount = 0;
+
+      await tester.pumpWidget(
+        PollenApp(
+          savedLocationLoader: () async {
+            savedLocationLoadCount += 1;
+            return _testLocation;
+          },
+          pollenDataLoader: ({required latitude, required longitude}) async =>
+              <PollenEntry>[const PollenEntry(name: 'Grass', intensity: 'Low')],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.language));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Polski').last);
+      await tester.pumpAndSettle();
+
+      expect(savedLocationLoadCount, 1);
+      expect(find.text('Pylenie dla: Warsaw'), findsOneWidget);
+      expect(find.text('Grass'), findsOneWidget);
+      expect(find.text('Niskie'), findsOneWidget);
+    },
+  );
+
+  testWidgets('Pollen errors show only a safe localized message', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      PollenApp(
+        savedLocationLoader: () async => _testLocation,
+        pollenDataLoader: ({required latitude, required longitude}) async =>
+            throw StateError('SECRET_API_KEY_SHOULD_NOT_RENDER'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Error loading data from Google Pollen API.'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('SECRET_API_KEY_SHOULD_NOT_RENDER'),
+      findsNothing,
+    );
   });
 }

@@ -1,17 +1,37 @@
-# pollenapp
+# PollenApp
 
-A new Flutter project.
+A Flutter application that displays current pollen allergens and intensity for a selected location, using Google Pollen API.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- First launch opens a map screen for location selection.
+- Location can be selected by:
+  - tapping on the map,
+  - using current device location,
+  - typing a city name.
+- Selected location is persisted on the device (`shared_preferences`).
+- If no saved location exists, app starts with map screen again.
+- Pollen list screen shows allergen name and intensity from Google Pollen API.
+- On-demand location change from pollen list screen.
+- App language switcher (English / Polish).
+- Localization is implemented with `flutter_localizations` + `intl` (ARB-based translations).
 
-A few resources to get you started if this is your first Flutter project:
+## Google Pollen API key
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+API key is injected at build/run time via environment variable passed as dart define:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter run --dart-define=GOOGLE_POLLEN_API_KEY=$GOOGLE_POLLEN_API_KEY
+```
+
+For release builds:
+
+```bash
+flutter build apk --release --dart-define=GOOGLE_POLLEN_API_KEY=$GOOGLE_POLLEN_API_KEY
+flutter build web --release --dart-define=GOOGLE_POLLEN_API_KEY=$GOOGLE_POLLEN_API_KEY
+```
+
+## GitHub Actions
+
+- `PR Checks` workflow runs `flutter analyze` and `dart analyze` on every PR to `main`.
+- `Main Build & Release` workflow builds release artifacts (`APK`, `web`) on every push to `main` and creates a GitHub release.
