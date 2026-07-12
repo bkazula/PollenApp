@@ -12,6 +12,19 @@ const AppLocation _testLocation = AppLocation(
 );
 
 void main() {
+  testWidgets('App displays location picker on first launch', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      PollenApp(savedLocationLoader: () async => null, autoLocateOnOpen: false),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Select location'), findsOneWidget);
+    expect(find.text('Choose on map or type a city'), findsOneWidget);
+  });
+
   testWidgets('App displays pollen data for a saved location', (
     WidgetTester tester,
   ) async {

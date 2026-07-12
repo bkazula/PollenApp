@@ -17,11 +17,13 @@ class PollenApp extends StatefulWidget {
   const PollenApp({
     this.savedLocationLoader = LocationStorageService.getSavedLocation,
     this.pollenDataLoader,
+    this.autoLocateOnOpen = true,
     super.key,
   });
 
   final SavedLocationLoader savedLocationLoader;
   final PollenDataLoader? pollenDataLoader;
+  final bool autoLocateOnOpen;
 
   @override
   State<PollenApp> createState() => _PollenAppState();
@@ -52,6 +54,7 @@ class _PollenAppState extends State<PollenApp> {
         onLocaleChanged: _setLocale,
         pollenDataLoader: widget.pollenDataLoader,
         savedLocationLoader: widget.savedLocationLoader,
+        autoLocateOnOpen: widget.autoLocateOnOpen,
       ),
     );
   }
@@ -62,12 +65,14 @@ class AppBootstrapper extends StatefulWidget {
     required this.onLocaleChanged,
     this.pollenDataLoader,
     this.savedLocationLoader = LocationStorageService.getSavedLocation,
+    this.autoLocateOnOpen = true,
     super.key,
   });
 
   final ValueChanged<Locale> onLocaleChanged;
   final PollenDataLoader? pollenDataLoader;
   final SavedLocationLoader savedLocationLoader;
+  final bool autoLocateOnOpen;
 
   @override
   State<AppBootstrapper> createState() => _AppBootstrapperState();
@@ -98,6 +103,7 @@ class _AppBootstrapperState extends State<AppBootstrapper> {
           return LocationPickerScreen(
             onLocaleChanged: widget.onLocaleChanged,
             pollenDataLoader: widget.pollenDataLoader,
+            autoLocateOnOpen: widget.autoLocateOnOpen,
           );
         }
 

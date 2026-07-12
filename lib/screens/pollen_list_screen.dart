@@ -24,21 +24,59 @@ class PollenListScreen extends StatefulWidget {
 }
 
 class _PollenListScreenState extends State<PollenListScreen> {
-  late Future<List<PollenEntry>> _future;
+  List<PollenEntry>? _entries;
+  bool _isLoading = false;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    _future = _load();
+    _load();
   }
 
-  Future<List<PollenEntry>> _load() {
-    final PollenDataLoader loader =
-        widget.pollenDataLoader ?? PollenApiService.fetchPollenData;
-    return loader(
-      latitude: widget.initialLocation.latitude,
-      longitude: widget.initialLocation.longitude,
-    );
+  Future<void> _load({bool showLoading = true}) async {
+    if (showLoading) {
+      setState(() {
+        _isLoading = true;
+        _hasError = false;
+      });
+    } else {
+      setState(() {
+        _hasError = false;
+      });
+    }
+
+    try {
+      final PollenDataLoader loader =
+          widget.pollenDataLoader ?? PollenApiService.fetchPollenData;
+      final List<PollenEntry> entries = await loader(
+        latitude: widget.initialLocation.latitude,
+        longitude: widget.initialLocation.longitude,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _entries = entries;
+        _hasError = false;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _hasError = true;
+      });
+    } finally {
+      if (mounted && showLoading) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Color _colorByIntensity(String intensity) {
@@ -110,77 +148,76 @@ class _PollenListScreenState extends State<PollenListScreen> {
           ),
         ],
       ),
-      body: FutureBuilder<List<PollenEntry>>(
-        future: _future,
-        builder:
-            (BuildContext context, AsyncSnapshot<List<PollenEntry>> snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Center(child: CircularProgressIndicator());
-              }
+      body: _buildBody(strings),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _load(),
+        icon: const Icon(Icons.refresh),
+        label: Text(strings.refresh),
+      ),
+    );
+  }
 
-              if (snapshot.hasError) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(strings.apiError, textAlign: TextAlign.center),
-                        const SizedBox(height: 12),
-                        OutlinedButton(
-                          onPressed: () {
-                            setState(() {
-                              _future = _load();
-                            });
-                          },
-                          child: Text(strings.refresh),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }
+  Widget _buildBody(AppLocalizations strings) {
+    if (_isLoading && _entries == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-              final List<PollenEntry> entries =
-                  snapshot.data ?? <PollenEntry>[];
-              if (entries.isEmpty) {
-                return Center(child: Text(strings.noData));
-              }
+    if (_hasError && _entries == null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(strings.apiError, textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: () => _load(),
+                child: Text(strings.refresh),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
-              return RefreshIndicator(
-                onRefresh: () async {
-                  setState(() {
-                    _future = _load();
-                  });
-                  await _future;
-                },
-                child: ListView.separated(
-                  itemCount: entries.length,
-                  separatorBuilder: (_, _) => const Divider(height: 0),
-                  itemBuilder: (BuildContext context, int index) {
-                    final PollenEntry entry = entries[index];
-                    return ListTile(
-                      title: Text(entry.name),
-                      trailing: Chip(
-                        backgroundColor: _colorByIntensity(entry.intensity),
-                        label: Text(
-                          _localizedIntensity(strings, entry.intensity),
-                        ),
-                      ),
-                    );
-                  },
+    final List<PollenEntry> entries = _entries ?? <PollenEntry>[];
+    if (entries.isEmpty) {
+      return Center(child: Text(strings.noData));
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => _load(showLoading: false),
+      child: Stack(
+        children: [
+          ListView.separated(
+            itemCount: entries.length,
+            separatorBuilder: (_, _) => const Divider(height: 0),
+            itemBuilder: (BuildContext context, int index) {
+              final PollenEntry entry = entries[index];
+              return ListTile(
+                title: Text(entry.name),
+                trailing: Chip(
+                  backgroundColor: _colorByIntensity(entry.intensity),
+                  label: Text(_localizedIntensity(strings, entry.intensity)),
                 ),
               );
             },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          setState(() {
-            _future = _load();
-          });
-        },
-        icon: const Icon(Icons.refresh),
-        label: Text(strings.refresh),
+          ),
+          if (_hasError)
+            Align(
+              alignment: Alignment.topCenter,
+              child: MaterialBanner(
+                content: Text(strings.apiError),
+                actions: [
+                  TextButton(
+                    onPressed: () => _load(),
+                    child: Text(strings.refresh),
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }

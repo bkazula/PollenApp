@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pollenapp/l10n/app_localizations.dart';
 
 import '../models/app_location.dart';
+import '../services/city_geocoding_service.dart';
 import '../services/location_storage_service.dart';
 import '../services/pollen_data_loader.dart';
 import 'pollen_list_screen.dart';
@@ -14,11 +14,13 @@ class LocationPickerScreen extends StatefulWidget {
   const LocationPickerScreen({
     required this.onLocaleChanged,
     this.pollenDataLoader,
+    this.autoLocateOnOpen = true,
     super.key,
   });
 
   final ValueChanged<Locale> onLocaleChanged;
   final PollenDataLoader? pollenDataLoader;
+  final bool autoLocateOnOpen;
 
   @override
   State<LocationPickerScreen> createState() => _LocationPickerScreenState();
@@ -35,7 +37,13 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   @override
   void initState() {
     super.initState();
-    _initFromDeviceLocation();
+    if (widget.autoLocateOnOpen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _initFromDeviceLocation();
+        }
+      });
+    }
   }
 
   @override
@@ -99,26 +107,23 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     });
 
     try {
-      final List<Location> results = await locationFromAddress(
-        _cityController.text.trim(),
+      final AppLocation? location = await CityGeocodingService.search(
+        _cityController.text,
       );
-      if (results.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(strings.citySearchFailed)));
-        }
-        return;
-      }
-
-      final Location result = results.first;
       if (!mounted) {
         return;
       }
 
+      if (location == null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(strings.citySearchFailed)));
+        return;
+      }
+
       setState(() {
-        _selected = LatLng(result.latitude, result.longitude);
-        _locationLabel = _cityController.text.trim();
+        _selected = LatLng(location.latitude, location.longitude);
+        _locationLabel = location.label;
       });
       _moveMap(_selected);
     } catch (_) {
