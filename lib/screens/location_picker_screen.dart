@@ -43,7 +43,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   }
 
   Future<void> _initFromDeviceLocation() async {
-    final AppLocalizations strings = AppLocalizations.of(context)!;
+    final AppLocalizations strings = AppLocalizations.of(context);
     final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       if (mounted) {
@@ -83,7 +83,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   }
 
   Future<void> _searchCity() async {
-    final AppLocalizations strings = AppLocalizations.of(context)!;
+    final AppLocalizations strings = AppLocalizations.of(context);
     if (_cityController.text.trim().isEmpty) {
       return;
     }
@@ -159,7 +159,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AppLocalizations strings = AppLocalizations.of(context)!;
+    final AppLocalizations strings = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(

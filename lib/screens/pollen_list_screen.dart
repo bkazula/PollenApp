@@ -69,7 +69,7 @@ class _PollenListScreenState extends State<PollenListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AppLocalizations strings = AppLocalizations.of(context)!;
+    final AppLocalizations strings = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
