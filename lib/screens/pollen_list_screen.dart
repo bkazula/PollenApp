@@ -4,17 +4,20 @@ import 'package:pollenapp/l10n/app_localizations.dart';
 import '../models/app_location.dart';
 import '../models/pollen_entry.dart';
 import '../services/pollen_api_service.dart';
+import '../services/pollen_data_loader.dart';
 import 'location_picker_screen.dart';
 
 class PollenListScreen extends StatefulWidget {
   const PollenListScreen({
     required this.initialLocation,
     required this.onLocaleChanged,
+    this.pollenDataLoader,
     super.key,
   });
 
   final AppLocation initialLocation;
   final ValueChanged<Locale> onLocaleChanged;
+  final PollenDataLoader? pollenDataLoader;
 
   @override
   State<PollenListScreen> createState() => _PollenListScreenState();
@@ -30,41 +33,43 @@ class _PollenListScreenState extends State<PollenListScreen> {
   }
 
   Future<List<PollenEntry>> _load() {
-    return PollenApiService.fetchPollenData(
+    final PollenDataLoader loader =
+        widget.pollenDataLoader ?? PollenApiService.fetchPollenData;
+    return loader(
       latitude: widget.initialLocation.latitude,
       longitude: widget.initialLocation.longitude,
     );
   }
 
   Color _colorByIntensity(String intensity) {
-    final String normalized = intensity.toLowerCase();
-    if (normalized.contains('high') || normalized.contains('very high')) {
-      return Colors.red.shade300;
+    switch (intensity.trim().toLowerCase()) {
+      case 'very high':
+      case 'high':
+        return Colors.red.shade300;
+      case 'moderate':
+      case 'medium':
+        return Colors.orange.shade300;
+      case 'low':
+        return Colors.green.shade300;
+      default:
+        return Colors.blueGrey.shade300;
     }
-    if (normalized.contains('medium') || normalized.contains('moderate')) {
-      return Colors.orange.shade300;
-    }
-    if (normalized.contains('low')) {
-      return Colors.green.shade300;
-    }
-    return Colors.blueGrey.shade300;
   }
 
   String _localizedIntensity(AppLocalizations strings, String intensity) {
-    final String normalized = intensity.toLowerCase();
-    if (normalized.contains('very high')) {
-      return strings.intensityVeryHigh;
+    switch (intensity.trim().toLowerCase()) {
+      case 'very high':
+        return strings.intensityVeryHigh;
+      case 'high':
+        return strings.intensityHigh;
+      case 'moderate':
+      case 'medium':
+        return strings.intensityMedium;
+      case 'low':
+        return strings.intensityLow;
+      default:
+        return intensity;
     }
-    if (normalized.contains('high')) {
-      return strings.intensityHigh;
-    }
-    if (normalized.contains('medium') || normalized.contains('moderate')) {
-      return strings.intensityMedium;
-    }
-    if (normalized.contains('low')) {
-      return strings.intensityLow;
-    }
-    return intensity;
   }
 
   @override
@@ -81,6 +86,7 @@ class _PollenListScreenState extends State<PollenListScreen> {
                 MaterialPageRoute(
                   builder: (BuildContext context) => LocationPickerScreen(
                     onLocaleChanged: widget.onLocaleChanged,
+                    pollenDataLoader: widget.pollenDataLoader,
                   ),
                 ),
               );
@@ -120,11 +126,6 @@ class _PollenListScreenState extends State<PollenListScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(strings.apiError, textAlign: TextAlign.center),
-                        const SizedBox(height: 8),
-                        Text(
-                          snapshot.error.toString(),
-                          textAlign: TextAlign.center,
-                        ),
                         const SizedBox(height: 12),
                         OutlinedButton(
                           onPressed: () {

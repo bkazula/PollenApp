@@ -7,12 +7,18 @@ import 'package:pollenapp/l10n/app_localizations.dart';
 
 import '../models/app_location.dart';
 import '../services/location_storage_service.dart';
+import '../services/pollen_data_loader.dart';
 import 'pollen_list_screen.dart';
 
 class LocationPickerScreen extends StatefulWidget {
-  const LocationPickerScreen({required this.onLocaleChanged, super.key});
+  const LocationPickerScreen({
+    required this.onLocaleChanged,
+    this.pollenDataLoader,
+    super.key,
+  });
 
   final ValueChanged<Locale> onLocaleChanged;
+  final PollenDataLoader? pollenDataLoader;
 
   @override
   State<LocationPickerScreen> createState() => _LocationPickerScreenState();
@@ -131,13 +137,12 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   }
 
   Future<void> _saveAndContinue() async {
-    await LocationStorageService.saveLocation(
-      AppLocation(
-        latitude: _selected.latitude,
-        longitude: _selected.longitude,
-        label: _locationLabel,
-      ),
+    final AppLocation location = AppLocation(
+      latitude: _selected.latitude,
+      longitude: _selected.longitude,
+      label: _locationLabel,
     );
+    await LocationStorageService.saveLocation(location);
 
     if (!mounted) {
       return;
@@ -146,12 +151,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (BuildContext context) => PollenListScreen(
-          initialLocation: AppLocation(
-            latitude: _selected.latitude,
-            longitude: _selected.longitude,
-            label: _locationLabel,
-          ),
+          initialLocation: location,
           onLocaleChanged: widget.onLocaleChanged,
+          pollenDataLoader: widget.pollenDataLoader,
         ),
       ),
     );
